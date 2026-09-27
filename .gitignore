@@ -4,4 +4,3 @@ obj/
 *.user
 publish/
 tools/
-appsettings.Production.json
