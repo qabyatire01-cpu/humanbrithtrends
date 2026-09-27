@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "HumanBirthPredictionSystem": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:5080",
+      "applicationUrl": "http://localhost:5080;https://localhost:7080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

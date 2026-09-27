@@ -1,0 +1,73 @@
+@model List<City>
+@{
+    ViewData["Title"] = "Cities";
+    ViewData["Subtitle"] = "Optional geographic filter, nested under Country";
+}
+
+<div class="filter-bar">
+    <form method="get" style="display:flex; gap:12px; align-items:end; flex:1; flex-wrap:wrap;">
+        <div class="form-group">
+            <label class="field-label">Search</label>
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="City name" />
+        </div>
+        <div class="form-group">
+            <label class="field-label">Country</label>
+            @Html.DropDownList("countryId", (SelectList)ViewBag.Countries, "All Countries", new { @class = "form-control" })
+        </div>
+        <button class="btn btn-outline" type="submit">Filter</button>
+    </form>
+    <a asp-action="Create" class="btn btn-primary">+ Add City</a>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th class="num">Birth Records</th>
+                    <th class="num">Total Births Recorded</th>
+                    <th>Added</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="6"><div class="empty-state"><h4>No cities found</h4><p>Add a city under a country to enable city-level filtering.</p></div></td></tr>
+            }
+            @foreach (var c in Model)
+            {
+                var recordCount = c.BirthRecords?.Count ?? 0;
+                var totalBirths = c.BirthRecords?.Sum(b => (long)b.TotalBirths) ?? 0;
+                <tr>
+                    <td><strong>@c.CityName</strong></td>
+                    <td>@c.Country?.CountryName</td>
+                    <td class="num">
+                        @if (recordCount > 0)
+                        {
+                            <a href="/BirthRecords?countryId=@c.CountryId&cityId=@c.Id" class="badge badge-official" title="View birth records for @c.CityName">@recordCount records</a>
+                        }
+                        else
+                        {
+                            <span class="text-soft">0 records</span>
+                        }
+                    </td>
+                    <td class="num font-mono">@(totalBirths > 0 ? totalBirths.ToString("N0") : "—")</td>
+                    <td class="text-soft">@c.CreatedAt.ToString("MMM d, yyyy")</td>
+                    <td>
+                        <div class="actions-row">
+                            <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-outline btn-sm">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@c.Id" method="post" data-confirm="Delete @c.CityName?">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
