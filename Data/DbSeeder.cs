@@ -58,84 +58,66 @@ namespace HumanBirthPredictionSystem.Data
                 db.SaveChanges();
             }
 
-            if (!db.BirthRecords.Any())
+            // Ensure Admin and standard user Ahmed exist
+            if (!db.Users.Any(u => u.Username == "Ahmed"))
             {
-                var rnd = new Random(42);
-                var records = new List<BirthRecord>();
-
-                foreach (var country in db.Countries.ToList())
+                db.Users.Add(new User
                 {
-                    double baseTotal = 40000 + rnd.Next(0, 400000);
-
-                    for (int year = 2015; year <= 2024; year++)
-                    {
-                        baseTotal *= 1 + (rnd.NextDouble() * 0.04 - 0.01);
-                        int total = (int)baseTotal;
-                        int male = (int)(total * (0.512 + (rnd.NextDouble() * 0.006 - 0.003)));
-                        int female = total - male;
-
-                        records.Add(new BirthRecord
-                        {
-                            CountryId = country.Id,
-                            CityId = null,
-                            Year = year,
-                            TotalBirths = total,
-                            MaleBirths = male,
-                            FemaleBirths = female,
-                            DataSource = "Sample Data for System Demonstration",
-                            SourceReference = "Generated for thesis defense demonstration purposes",
-                            RecordType = RecordType.Estimated
-                        });
-                    }
-                }
-
-                db.BirthRecords.AddRange(records);
+                    Username = "Ahmed",
+                    PasswordHash = PasswordHasher.Hash("user123"),
+                    FullName = "Ahmed User",
+                    Role = "User",
+                    CreatedAt = DateTime.UtcNow
+                });
                 db.SaveChanges();
             }
 
-            if (!db.BirthRecords.Any(r => r.CityId != null))
+            // Replace all birth records with the requested 2015-2035 Somalia dataset
+            var somaliaCountry = db.Countries.FirstOrDefault(c => c.CountryCode == "SOM");
+            if (somaliaCountry == null)
             {
-                var cityRecords = new List<BirthRecord>();
-                var cities = db.Cities.Include(c => c.Country).ToList();
+                somaliaCountry = new Country { CountryName = "Somalia", CountryCode = "SOM", Continent = "Africa" };
+                db.Countries.Add(somaliaCountry);
+                db.SaveChanges();
+            }
 
-                var cityBaseMap = new Dictionary<string, int>
+            // Check if existing records match the 2015-2035 Somalia data
+            bool needsSeed = db.BirthRecords.Count() != 21 ||
+                             !db.BirthRecords.All(r => r.CountryId == somaliaCountry.Id && r.Year >= 2015 && r.Year <= 2035);
+
+            if (needsSeed)
+            {
+                // Clear any existing birth records
+                var existing = db.BirthRecords.ToList();
+                db.BirthRecords.RemoveRange(existing);
+                db.SaveChanges();
+
+                var records = new List<BirthRecord>
                 {
-                    { "Garowe", 12500 },
-                    { "Mogadishu", 82000 },
-                    { "Bosaso", 19200 },
-                    { "Hargeisa", 32000 },
-                    { "Nairobi", 118000 },
-                    { "Mombasa", 39500 },
-                    { "Kisumu", 23000 }
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2015, TotalBirths = 651292, MaleBirths = 332031, FemaleBirths = 319261, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2016, TotalBirths = 668096, MaleBirths = 340598, FemaleBirths = 327498, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2017, TotalBirths = 688481, MaleBirths = 350990, FemaleBirths = 337491, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2018, TotalBirths = 705717, MaleBirths = 359777, FemaleBirths = 345940, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2019, TotalBirths = 723617, MaleBirths = 368903, FemaleBirths = 354714, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2020, TotalBirths = 741705, MaleBirths = 378124, FemaleBirths = 363581, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2021, TotalBirths = 761567, MaleBirths = 388250, FemaleBirths = 373317, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2022, TotalBirths = 779534, MaleBirths = 397409, FemaleBirths = 382125, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2023, TotalBirths = 788763, MaleBirths = 402114, FemaleBirths = 386649, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2024, TotalBirths = 804966, MaleBirths = 410375, FemaleBirths = 394591, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2025, TotalBirths = 822215, MaleBirths = 419168, FemaleBirths = 403047, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2026, TotalBirths = 836420, MaleBirths = 426410, FemaleBirths = 410010, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2027, TotalBirths = 847521, MaleBirths = 432070, FemaleBirths = 415451, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, Year = 2028, TotalBirths = 859891, MaleBirths = 438376, FemaleBirths = 421515, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, Year = 2029, TotalBirths = 869665, MaleBirths = 443359, FemaleBirths = 426306, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, Year = 2030, TotalBirths = 878445, MaleBirths = 447835, FemaleBirths = 430610, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, Year = 2031, TotalBirths = 891665, MaleBirths = 454574, FemaleBirths = 437091, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, Year = 2032, TotalBirths = 901357, MaleBirths = 459515, FemaleBirths = 441842, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, Year = 2033, TotalBirths = 915030, MaleBirths = 466486, FemaleBirths = 448544, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, Year = 2034, TotalBirths = 924402, MaleBirths = 471264, FemaleBirths = 453138, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow },
+                    new() { CountryId = somaliaCountry.Id, Year = 2035, TotalBirths = 936181, MaleBirths = 477269, FemaleBirths = 458912, RecordType = RecordType.Predicted, DataSource = "Somalia Demographic Projection Model", SourceReference = "Demographic Projections 2025-2035", CreatedAt = DateTime.UtcNow }
                 };
 
-                foreach (var city in cities)
-                {
-                    int baseBirths = cityBaseMap.TryGetValue(city.CityName, out var b) ? b : 15000;
-                    for (int year = 2015; year <= 2024; year++)
-                    {
-                        int offset = year - 2015;
-                        int total = baseBirths + (offset * (baseBirths / 30));
-                        int male = (int)(total * 0.512);
-                        int female = total - male;
-
-                        cityRecords.Add(new BirthRecord
-                        {
-                            CountryId = city.CountryId,
-                            CityId = city.Id,
-                            Year = year,
-                            TotalBirths = total,
-                            MaleBirths = male,
-                            FemaleBirths = female,
-                            DataSource = $"{city.CityName} Municipal Health Records",
-                            SourceReference = "Annual Demographic Health Survey",
-                            RecordType = RecordType.Official,
-                            CreatedAt = DateTime.UtcNow
-                        });
-                    }
-                }
-
-                db.BirthRecords.AddRange(cityRecords);
+                db.BirthRecords.AddRange(records);
                 db.SaveChanges();
             }
         }
