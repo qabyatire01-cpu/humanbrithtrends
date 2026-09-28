@@ -1,0 +1,51 @@
+@model HumanBirthPredictionSystem.ViewModels.CreateUserViewModel
+@{
+    ViewData["Title"] = "Add New User";
+    ViewData["Subtitle"] = "Create a user account and assign system permissions";
+}
+
+<div class="card" style="max-width:600px; margin:0 auto;">
+    <form asp-action="Create" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="Username" class="field-label"></label>
+            <input asp-for="Username" class="form-control" placeholder="e.g. ahmed or maryan" autocomplete="off" />
+            <span asp-validation-for="Username" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="FullName" class="field-label"></label>
+            <input asp-for="FullName" class="form-control" placeholder="e.g. Ahmed Ali" />
+            <span asp-validation-for="FullName" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password" class="field-label"></label>
+            <input asp-for="Password" class="form-control" placeholder="Minimum 6 characters" />
+            <span asp-validation-for="Password" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Role" class="field-label"></label>
+            <select asp-for="Role" class="form-control">
+                <option value="User">User (Data Entry &amp; View Only - Cannot Edit/Delete)</option>
+                <option value="Admin">Admin (Full Control - Can manage everything)</option>
+            </select>
+            <span asp-validation-for="Role" class="field-error"></span>
+            <small style="display:block; margin-top:6px; color:#64748b; font-size:12px;">
+                <strong>User role</strong> allows entering new birth records, viewing reports, and analyzing predictions, but prevents editing or deleting any records or settings.
+            </small>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+            <a asp-action="Index" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create User Account</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

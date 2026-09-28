@@ -59,14 +59,23 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
                     Reports
                 </a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="nav-label">Administration</div>
+                    <a href="/Users" class="@(IsActive("Users") ? "active" : "")">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                        User Management
+                    </a>
+                }
             </nav>
 
             <div class="sidebar-footer">
                 <div class="user-row">
-                    <div class="avatar">@(User.Identity?.Name?.Substring(0,1).ToUpper() ?? "A")</div>
+                    <div class="avatar" style="@(User.IsInRole("Admin") ? "background:#4338ca;" : "background:#0284c7;")">@(User.Identity?.Name?.Substring(0,1).ToUpper() ?? "U")</div>
                     <div>
                         <div style="color:#fff;font-weight:600;">@User.Identity?.Name</div>
-                        <div>Administrator</div>
+                        <div style="font-size:12px; color:@(User.IsInRole("Admin") ? "#fde68a" : "#7dd3fc");">@(User.IsInRole("Admin") ? "Administrator" : "Standard User")</div>
                     </div>
                 </div>
                 <form asp-controller="Account" asp-action="Logout" method="get">

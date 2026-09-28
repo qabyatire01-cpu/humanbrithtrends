@@ -37,6 +37,7 @@ namespace HumanBirthPredictionSystem.Controllers
             return View(cities);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             ViewBag.Countries = new SelectList(await _db.Countries.OrderBy(c => c.CountryName).ToListAsync(), "Id", "CountryName");
@@ -45,6 +46,7 @@ namespace HumanBirthPredictionSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(City model)
         {
             if (await _db.Cities.AnyAsync(c => c.CountryId == model.CountryId && c.CityName == model.CityName))
@@ -64,6 +66,7 @@ namespace HumanBirthPredictionSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var city = await _db.Cities.FindAsync(id);
@@ -75,6 +78,7 @@ namespace HumanBirthPredictionSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, City model)
         {
             if (id != model.Id) return NotFound();
@@ -98,6 +102,7 @@ namespace HumanBirthPredictionSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var city = await _db.Cities.FindAsync(id);

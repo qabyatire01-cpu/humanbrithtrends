@@ -15,6 +15,9 @@ namespace HumanBirthPredictionSystem.Models
         [MaxLength(150)]
         public string FullName { get; set; } = string.Empty;
 
+        [Required, MaxLength(50)]
+        public string Role { get; set; } = "Admin"; // "Admin" or "User"
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

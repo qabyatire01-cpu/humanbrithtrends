@@ -1,0 +1,50 @@
+@model HumanBirthPredictionSystem.ViewModels.EditUserViewModel
+@{
+    ViewData["Title"] = "Edit User";
+    ViewData["Subtitle"] = $"Modify account details and role for {Model.Username}";
+}
+
+<div class="card" style="max-width:600px; margin:0 auto;">
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="Username" class="field-label"></label>
+            <input asp-for="Username" class="form-control" />
+            <span asp-validation-for="Username" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="FullName" class="field-label"></label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Role" class="field-label"></label>
+            <select asp-for="Role" class="form-control">
+                <option value="User">User (Data Entry &amp; View Only - Cannot Edit/Delete)</option>
+                <option value="Admin">Admin (Full Control - Can manage everything)</option>
+            </select>
+            <span asp-validation-for="Role" class="field-error"></span>
+        </div>
+
+        <div class="form-group" style="margin-top:16px; padding-top:16px; border-top:1px dashed #e2e8f0;">
+            <label asp-for="NewPassword" class="field-label"></label>
+            <input asp-for="NewPassword" class="form-control" placeholder="Leave empty to keep existing password" />
+            <span asp-validation-for="NewPassword" class="field-error"></span>
+            <small style="display:block; margin-top:4px; color:#64748b; font-size:12px;">Only fill this if you want to reset or change the user's password.</small>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+            <a asp-action="Index" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

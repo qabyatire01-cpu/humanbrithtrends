@@ -12,7 +12,10 @@
         </div>
         <button class="btn btn-outline" type="submit">Search</button>
     </form>
-    <a asp-action="Create" class="btn btn-primary">+ Add Country</a>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary">+ Add Country</a>
+    }
 </div>
 
 <div class="card">
@@ -67,13 +70,20 @@
                     <td class="num font-mono">@(totalBirths > 0 ? totalBirths.ToString("N0") : "—")</td>
                     <td class="text-soft">@c.CreatedAt.ToString("MMM d, yyyy")</td>
                     <td>
-                        <div class="actions-row">
-                            <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-outline btn-sm">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@c.Id" method="post" data-confirm="Delete @c.CountryName? This cannot be undone.">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
-                        </div>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="actions-row">
+                                <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-outline btn-sm">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@c.Id" method="post" data-confirm="Delete @c.CountryName? This cannot be undone.">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-soft" style="font-size:12px; font-weight:500;">View only</span>
+                        }
                     </td>
                 </tr>
             }

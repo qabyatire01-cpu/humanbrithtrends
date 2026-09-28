@@ -14,6 +14,7 @@ namespace HumanBirthPredictionSystem.Data
                     Username = "Bashiir",
                     PasswordHash = PasswordHasher.Hash("bashiir21"),
                     FullName = "System Administrator",
+                    Role = "Admin",
                     CreatedAt = DateTime.UtcNow
                 });
                 db.SaveChanges();

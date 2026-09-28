@@ -48,6 +48,7 @@ namespace HumanBirthPredictionSystem.Controllers
             {
                 new(ClaimTypes.Name, user.Username),
                 new(ClaimTypes.GivenName, user.FullName),
+                new(ClaimTypes.Role, user.Role ?? "Admin"),
                 new("UserId", user.Id.ToString())
             };
 
