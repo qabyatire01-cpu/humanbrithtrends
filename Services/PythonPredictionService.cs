@@ -27,12 +27,19 @@ namespace HumanBirthPredictionSystem.Services
         public async Task<PredictionResult> RunPredictionAsync(PredictionRequest request)
         {
             var query = _db.BirthRecords.AsNoTracking()
-                .Where(r => r.CountryId == request.CountryId);
+                .Where(r => r.CountryId == request.CountryId && r.Year < request.StartYear);
 
             if (request.CityId.HasValue)
                 query = query.Where(r => r.CityId == request.CityId);
 
             var records = await query.OrderBy(r => r.Year).ToListAsync();
+
+            if (records.Count < 2)
+            {
+                var fallbackQuery = _db.BirthRecords.AsNoTracking().Where(r => r.CountryId == request.CountryId);
+                if (request.CityId.HasValue) fallbackQuery = fallbackQuery.Where(r => r.CityId == request.CityId);
+                records = await fallbackQuery.OrderBy(r => r.Year).ToListAsync();
+            }
 
             if (records.Count < 2)
             {

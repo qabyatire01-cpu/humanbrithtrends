@@ -97,9 +97,9 @@ else
         if (typeof Chart === 'undefined') return;
 
         const rows = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CombinedRows));
-        const years = rows.map(r => r.year);
-        const totals = rows.map(r => r.totalBirths);
-        const isPredicted = rows.map(r => r.dataType === 'Predicted');
+        const years = rows.map(r => r.Year !== undefined ? r.Year : r.year);
+        const totals = rows.map(r => r.TotalBirths !== undefined ? r.TotalBirths : r.totalBirths);
+        const isPredicted = rows.map(r => (r.DataType !== undefined ? r.DataType : r.dataType) === 'Predicted');
 
         const pointColors = isPredicted.map(p => p ? '#b9812e' : '#4c5d73');
 

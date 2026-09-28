@@ -87,7 +87,7 @@ namespace HumanBirthPredictionSystem.Controllers
             _db.Predictions.AddRange(newPredictions);
             await _db.SaveChangesAsync();
 
-            var historyQuery = _db.BirthRecords.AsNoTracking().Where(r => r.CountryId == input.CountryId);
+            var historyQuery = _db.BirthRecords.AsNoTracking().Where(r => r.CountryId == input.CountryId && r.Year < input.StartYear);
             if (input.CityId.HasValue) historyQuery = historyQuery.Where(r => r.CityId == input.CityId);
             var history = await historyQuery.OrderBy(r => r.Year).ToListAsync();
 
