@@ -56,7 +56,7 @@
             {
                 <tr>
                     <td><strong>@r.Country?.CountryName</strong></td>
-                    <td class="text-soft">@(r.City != null ? r.City.CityName : "—")</td>
+                    <td class="text-soft">@(r.City != null ? r.City.CityName : "&mdash;")</td>
                     <td>@r.Year</td>
                     <td class="num">@r.TotalBirths.ToString("N0")</td>
                     <td class="num">@r.MaleBirths.ToString("N0")</td>
