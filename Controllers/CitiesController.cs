@@ -122,12 +122,13 @@ namespace HumanBirthPredictionSystem.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<JsonResult> GetByCountry(int countryId)
         {
             var cities = await _db.Cities
                 .Where(c => c.CountryId == countryId)
                 .OrderBy(c => c.CityName)
-                .Select(c => new { c.Id, c.CityName })
+                .Select(c => new { id = c.Id, cityName = c.CityName })
                 .ToListAsync();
 
             return Json(cities);

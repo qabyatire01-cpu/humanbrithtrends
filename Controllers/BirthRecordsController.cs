@@ -29,9 +29,14 @@ namespace HumanBirthPredictionSystem.Controllers
             if (year.HasValue) query = query.Where(r => r.Year == year);
             if (recordType.HasValue) query = query.Where(r => r.RecordType == recordType);
             if (!string.IsNullOrWhiteSpace(search))
-                query = query.Where(r => r.Country!.CountryName.Contains(search) || r.DataSource.Contains(search));
+                query = query.Where(r => r.Country!.CountryName.Contains(search) || r.DataSource.Contains(search) || (r.City != null && r.City.CityName.Contains(search)));
 
             ViewBag.Countries = new SelectList(await _db.Countries.OrderBy(c => c.CountryName).ToListAsync(), "Id", "CountryName", countryId);
+            ViewBag.Cities = new SelectList(
+                countryId.HasValue
+                    ? await _db.Cities.Where(c => c.CountryId == countryId.Value).OrderBy(c => c.CityName).ToListAsync()
+                    : await _db.Cities.OrderBy(c => c.CityName).ToListAsync(),
+                "Id", "CityName", cityId);
             ViewBag.CountryId = countryId;
             ViewBag.CityId = cityId;
             ViewBag.Year = year;
@@ -42,10 +47,25 @@ namespace HumanBirthPredictionSystem.Controllers
             return View(records);
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? countryId)
         {
-            ViewBag.Countries = new SelectList(await _db.Countries.OrderBy(c => c.CountryName).ToListAsync(), "Id", "CountryName");
-            return View(new BirthRecord { RecordType = RecordType.Historical, Year = DateTime.UtcNow.Year });
+            var countries = await _db.Countries.OrderBy(c => c.CountryName).ToListAsync();
+            var somalia = countries.FirstOrDefault(c => c.CountryCode == "SOM") ?? countries.FirstOrDefault();
+            var selectedCountryId = countryId ?? somalia?.Id;
+
+            ViewBag.Countries = new SelectList(countries, "Id", "CountryName", selectedCountryId);
+            ViewBag.Cities = new SelectList(
+                selectedCountryId.HasValue
+                    ? await _db.Cities.Where(c => c.CountryId == selectedCountryId.Value).OrderBy(c => c.CityName).ToListAsync()
+                    : new List<City>(),
+                "Id", "CityName");
+
+            return View(new BirthRecord
+            {
+                CountryId = selectedCountryId ?? 0,
+                RecordType = RecordType.Official,
+                Year = DateTime.UtcNow.Year
+            });
         }
 
         [HttpPost]

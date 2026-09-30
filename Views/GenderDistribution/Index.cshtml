@@ -7,11 +7,11 @@
 <form method="get" class="filter-bar">
     <div class="form-group">
         <label class="field-label">Country</label>
-        @Html.DropDownList("countryId", new SelectList(Model.Countries, "Id", "CountryName", Model.CountryId), "All Countries", new { @class = "form-control" })
+        @Html.DropDownList("countryId", new SelectList(Model.Countries, "Id", "CountryName", Model.CountryId), "All Countries", new { @class = "form-control", data_country_source = "true", data_city_target = "cityId" })
     </div>
     <div class="form-group">
         <label class="field-label">City</label>
-        @Html.DropDownList("cityId", new SelectList(Model.Cities, "Id", "CityName", Model.CityId), "All Cities", new { @class = "form-control" })
+        @Html.DropDownList("cityId", new SelectList(Model.Cities, "Id", "CityName", Model.CityId), "All Cities", new { @class = "form-control", id = "cityId" })
     </div>
     <div class="form-group">
         <label class="field-label">Year</label>

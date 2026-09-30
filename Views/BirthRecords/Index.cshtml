@@ -8,7 +8,11 @@
     <form method="get" style="display:flex; gap:12px; align-items:end; flex:1; flex-wrap:wrap;">
         <div class="form-group">
             <label class="field-label">Country</label>
-            @Html.DropDownList("countryId", (SelectList)ViewBag.Countries, "All Countries", new { @class = "form-control" })
+            @Html.DropDownList("countryId", (SelectList)ViewBag.Countries, "All Countries", new { @class = "form-control", data_country_source = "true", data_city_target = "cityFilter" })
+        </div>
+        <div class="form-group">
+            <label class="field-label">City</label>
+            @Html.DropDownList("cityId", (SelectList)ViewBag.Cities, "All Cities", new { @class = "form-control", id = "cityFilter" })
         </div>
         <div class="form-group">
             <label class="field-label">Year</label>
@@ -26,7 +30,7 @@
         </div>
         <div class="form-group">
             <label class="field-label">Search</label>
-            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Country or source" />
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Country, city or source" />
         </div>
         <button class="btn btn-outline" type="submit">Filter</button>
     </form>
@@ -52,7 +56,7 @@
             {
                 <tr>
                     <td><strong>@r.Country?.CountryName</strong></td>
-                    <td class="text-soft">@(r.City?.CityName ?? "&mdash;")</td>
+                    <td class="text-soft">@(r.City != null ? r.City.CityName : "—")</td>
                     <td>@r.Year</td>
                     <td class="num">@r.TotalBirths.ToString("N0")</td>
                     <td class="num">@r.MaleBirths.ToString("N0")</td>

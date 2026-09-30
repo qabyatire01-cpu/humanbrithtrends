@@ -29,21 +29,43 @@ document.addEventListener('DOMContentLoaded', function () {
     var citySelect = document.getElementById(citySelectId);
     if (!citySelect) return;
 
-    countrySelect.addEventListener('change', function () {
-      var countryId = countrySelect.value;
-      citySelect.innerHTML = '<option value="">-- None / Country level --</option>';
+    var defaultLabel = (citySelect.options.length > 0 && citySelect.options[0].textContent.indexOf('All Cities') !== -1)
+      ? 'All Cities'
+      : '-- None / Country level --';
+
+    function populateCities(countryId, keepSelection) {
+      var currentVal = keepSelection ? citySelect.value : '';
+      citySelect.innerHTML = '<option value="">' + defaultLabel + '</option>';
       if (!countryId) return;
 
       fetch('/Cities/GetByCountry?countryId=' + countryId)
         .then(function (r) { return r.json(); })
         .then(function (cities) {
-          cities.forEach(function (c) {
-            var opt = document.createElement('option');
-            opt.value = c.id;
-            opt.textContent = c.cityName;
-            citySelect.appendChild(opt);
-          });
+          if (Array.isArray(cities)) {
+            cities.forEach(function (c) {
+              var id = (c.id !== undefined && c.id !== null) ? c.id : c.Id;
+              var name = (c.cityName !== undefined && c.cityName !== null) ? c.cityName : c.CityName;
+              var opt = document.createElement('option');
+              opt.value = id;
+              opt.textContent = name;
+              if (String(id) === String(currentVal)) {
+                opt.selected = true;
+              }
+              citySelect.appendChild(opt);
+            });
+          }
+        })
+        .catch(function (err) {
+          console.error('Failed to load cities:', err);
         });
+    }
+
+    countrySelect.addEventListener('change', function () {
+      populateCities(countrySelect.value, false);
     });
+
+    if (countrySelect.value && citySelect.options.length <= 1) {
+      populateCities(countrySelect.value, true);
+    }
   });
 });
