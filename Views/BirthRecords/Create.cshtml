@@ -72,23 +72,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        (function() {
-            var totalInput = document.querySelector('input[name="TotalBirths"]');
-            var maleInput = document.querySelector('input[name="MaleBirths"]');
-            var femaleInput = document.querySelector('input[name="FemaleBirths"]');
-            if (!totalInput || !maleInput || !femaleInput) return;
-
-            function syncFromParts() {
-                var m = parseInt(maleInput.value) || 0;
-                var f = parseInt(femaleInput.value) || 0;
-                if (m > 0 || f > 0) {
-                    totalInput.value = m + f;
-                }
-            }
-
-            maleInput.addEventListener('input', syncFromParts);
-            femaleInput.addEventListener('input', syncFromParts);
-        })();
-    </script>
 }
