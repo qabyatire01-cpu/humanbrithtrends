@@ -87,20 +87,8 @@
                 }
             }
 
-            function syncFromTotal() {
-                var t = parseInt(totalInput.value) || 0;
-                var m = parseInt(maleInput.value) || 0;
-                var f = parseInt(femaleInput.value) || 0;
-                if (t > 0 && (m === 0 && f === 0 || m + f !== t)) {
-                    var newMale = Math.round(t * 0.512);
-                    maleInput.value = newMale;
-                    femaleInput.value = t - newMale;
-                }
-            }
-
             maleInput.addEventListener('input', syncFromParts);
             femaleInput.addEventListener('input', syncFromParts);
-            totalInput.addEventListener('change', syncFromTotal);
         })();
     </script>
 }
