@@ -20,12 +20,27 @@ namespace HumanBirthPredictionSystem.Controllers
             _pythonService = pythonService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? countryId, int? cityId, int? startYear, int? endYear)
         {
+            var countries = await _db.Countries.OrderBy(c => c.CountryName).ToListAsync();
+            var somalia = countries.FirstOrDefault(c => c.CountryCode == "SOM") ?? countries.FirstOrDefault();
+            var selectedCountryId = countryId ?? somalia?.Id;
+
             var vm = new PredictionViewModel
             {
-                Countries = await _db.Countries.OrderBy(c => c.CountryName).ToListAsync()
+                Countries = countries,
+                CountryId = selectedCountryId,
+                CityId = cityId,
+                StartYear = startYear ?? 2025,
+                EndYear = endYear ?? 2035
             };
+
+            if (selectedCountryId.HasValue)
+            {
+                vm.Cities = await _db.Cities.Where(c => c.CountryId == selectedCountryId.Value).OrderBy(c => c.CityName).ToListAsync();
+                await ExecutePredictionAsync(vm);
+            }
+
             return View(vm);
         }
 
@@ -50,9 +65,21 @@ namespace HumanBirthPredictionSystem.Controllers
                 return View("Index", input);
             }
 
+            await ExecutePredictionAsync(input);
+
+            if (input.HasResults)
+            {
+                TempData["Success"] = "Prediction generated successfully.";
+            }
+
+            return View("Index", input);
+        }
+
+        private async Task ExecutePredictionAsync(PredictionViewModel input)
+        {
             var result = await _pythonService.RunPredictionAsync(new PredictionRequest
             {
-                CountryId = input.CountryId.Value,
+                CountryId = input.CountryId!.Value,
                 CityId = input.CityId,
                 StartYear = input.StartYear,
                 EndYear = input.EndYear
@@ -61,7 +88,7 @@ namespace HumanBirthPredictionSystem.Controllers
             if (!result.Success)
             {
                 input.ErrorMessage = result.ErrorMessage;
-                return View("Index", input);
+                return;
             }
 
             var existing = _db.Predictions.Where(p =>
@@ -87,7 +114,9 @@ namespace HumanBirthPredictionSystem.Controllers
             _db.Predictions.AddRange(newPredictions);
             await _db.SaveChangesAsync();
 
-            var historyQuery = _db.BirthRecords.AsNoTracking().Where(r => r.CountryId == input.CountryId && r.Year < input.StartYear);
+            // Include all recorded data outside the predicted year range so no recorded years disappear!
+            var historyQuery = _db.BirthRecords.AsNoTracking()
+                .Where(r => r.CountryId == input.CountryId && (r.Year < input.StartYear || r.Year > input.EndYear));
             if (input.CityId.HasValue) historyQuery = historyQuery.Where(r => r.CityId == input.CityId);
             var history = await historyQuery.OrderBy(r => r.Year).ToListAsync();
 
@@ -111,9 +140,6 @@ namespace HumanBirthPredictionSystem.Controllers
 
             input.CombinedRows = rows.OrderBy(r => r.Year).ToList();
             input.HasResults = true;
-
-            TempData["Success"] = $"Prediction generated successfully using {result.Model}.";
-            return View("Index", input);
         }
     }
 }
