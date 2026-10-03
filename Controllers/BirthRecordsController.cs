@@ -43,7 +43,7 @@ namespace HumanBirthPredictionSystem.Controllers
             ViewBag.RecordType = recordType;
             ViewBag.Search = search;
 
-            var records = await query.OrderByDescending(r => r.Year).ThenBy(r => r.Country!.CountryName).ToListAsync();
+            var records = await query.OrderByDescending(r => r.CreatedAt).ThenByDescending(r => r.Id).ToListAsync();
             return View(records);
         }
 
@@ -128,6 +128,7 @@ namespace HumanBirthPredictionSystem.Controllers
             existing.DataSource = model.DataSource ?? string.Empty;
             existing.SourceReference = model.SourceReference ?? string.Empty;
             existing.RecordType = model.RecordType;
+            existing.CreatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
             TempData["Success"] = "Birth record was updated successfully.";
