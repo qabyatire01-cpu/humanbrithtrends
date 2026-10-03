@@ -114,31 +114,17 @@ namespace HumanBirthPredictionSystem.Controllers
             _db.Predictions.AddRange(newPredictions);
             await _db.SaveChangesAsync();
 
-            // Include all recorded data outside the predicted year range so no recorded years disappear!
-            var historyQuery = _db.BirthRecords.AsNoTracking()
-                .Where(r => r.CountryId == input.CountryId && (r.Year < input.StartYear || r.Year > input.EndYear));
-            if (input.CityId.HasValue) historyQuery = historyQuery.Where(r => r.CityId == input.CityId);
-            var history = await historyQuery.OrderBy(r => r.Year).ToListAsync();
-
-            var rows = new List<PredictionRow>();
-            rows.AddRange(history.Select(h => new PredictionRow
-            {
-                Year = h.Year,
-                DataType = h.RecordType.ToString(),
-                TotalBirths = h.TotalBirths,
-                MaleBirths = h.MaleBirths,
-                FemaleBirths = h.FemaleBirths
-            }));
-            rows.AddRange(newPredictions.Select(p => new PredictionRow
+            // ONLY show predicted records on the Prediction page as requested by user
+            var rows = newPredictions.Select(p => new PredictionRow
             {
                 Year = p.Year,
                 DataType = "Predicted",
                 TotalBirths = p.PredictedTotalBirths,
                 MaleBirths = p.PredictedMaleBirths,
                 FemaleBirths = p.PredictedFemaleBirths
-            }));
+            }).OrderBy(r => r.Year).ToList();
 
-            input.CombinedRows = rows.OrderBy(r => r.Year).ToList();
+            input.CombinedRows = rows;
             input.HasResults = true;
         }
     }

@@ -40,17 +40,16 @@
 @if (Model.HasResults)
 {
     <div class="legend-row">
-        <span><span class="legend-dot" style="background:#4c5d73;"></span>Historical / Official / Estimated Data</span>
         <span><span class="legend-dot" style="background:#b9812e;"></span>Predicted Data (Model Estimate)</span>
     </div>
 
     <div class="card" style="margin-bottom:18px;">
-        <div class="card-header"><h3>Historical vs Predicted Total Births</h3></div>
+        <div class="card-header"><h3>Predicted Total Births</h3></div>
         <div class="card-pad"><canvas id="predictionChart" height="100"></canvas></div>
     </div>
 
     <div class="card">
-        <div class="card-header"><h3>Combined Data Table</h3></div>
+        <div class="card-header"><h3>Prediction Results Table</h3></div>
         <div class="table-wrap">
             <table class="data-table">
                 <thead><tr><th>Year</th><th>Data Type</th><th class="num">Total Births</th><th class="num">Male</th><th class="num">Female</th></tr></thead>
@@ -58,18 +57,11 @@
                 @foreach (var row in Model.CombinedRows)
                 {
                     <tr>
-                        <td>@row.Year</td>
+                        <td><strong>@row.Year</strong></td>
                         <td>
-                            @if (row.DataType == "Predicted")
-                            {
-                                <span class="badge badge-predicted">Predicted &middot; Model Estimate</span>
-                            }
-                            else
-                            {
-                                <span class="badge badge-@row.DataType.ToLower()">@row.DataType &middot; Recorded Data</span>
-                            }
+                            <span class="badge badge-predicted">Predicted &middot; Model Estimate</span>
                         </td>
-                        <td class="num">@row.TotalBirths.ToString("N0")</td>
+                        <td class="num"><strong>@row.TotalBirths.ToString("N0")</strong></td>
                         <td class="num">@row.MaleBirths.ToString("N0")</td>
                         <td class="num">@row.FemaleBirths.ToString("N0")</td>
                     </tr>
@@ -99,9 +91,6 @@ else
         const rows = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CombinedRows));
         const years = rows.map(r => r.Year !== undefined ? r.Year : r.year);
         const totals = rows.map(r => r.TotalBirths !== undefined ? r.TotalBirths : r.totalBirths);
-        const isPredicted = rows.map(r => (r.DataType !== undefined ? r.DataType : r.dataType) === 'Predicted');
-
-        const pointColors = isPredicted.map(p => p ? '#b9812e' : '#4c5d73');
 
         var elPred = document.getElementById('predictionChart');
         if (elPred) {
@@ -110,19 +99,41 @@ else
                 data: {
                     labels: years,
                     datasets: [{
-                        label: 'Total Births',
+                        label: 'Predicted Total Births',
                         data: totals,
-                        borderColor: '#4c5d73',
-                        segment: {
-                            borderColor: ctx => isPredicted[ctx.p1DataIndex] ? '#b9812e' : '#4c5d73',
-                            borderDash: ctx => isPredicted[ctx.p1DataIndex] ? [6, 4] : []
-                        },
-                        pointBackgroundColor: pointColors,
-                        pointBorderColor: pointColors,
+                        borderColor: '#b9812e',
+                        backgroundColor: 'rgba(185, 129, 46, 0.08)',
+                        pointBackgroundColor: '#b9812e',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true,
                         tension: 0.25
                     }]
                 },
-                options: { responsive: true, plugins: { legend: { display: false } } }
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ' Predicted Births: ' + ctx.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(val) {
+                                    return val.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
     });
