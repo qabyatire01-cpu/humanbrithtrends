@@ -81,32 +81,61 @@ namespace HumanBirthPredictionSystem.Data
                 db.SaveChanges();
             }
 
-            // Check if existing records match the 2015-2024 Somalia historical baseline
-            bool needsSeed = db.BirthRecords.Count() != 10 ||
-                             !db.BirthRecords.All(r => r.CountryId == somaliaCountry.Id && r.Year >= 2015 && r.Year <= 2024);
+            // Ensure 2015-2035 Somalia baseline records exist
+            var existingYears = db.BirthRecords
+                .Where(r => r.CountryId == somaliaCountry.Id && r.CityId == null && r.Year >= 2015 && r.Year <= 2035)
+                .Select(r => r.Year)
+                .ToHashSet();
 
-            if (needsSeed)
+            var baseline = new (int Year, int Total, int Male, int Female)[]
             {
-                // Clear any existing birth records
-                var existing = db.BirthRecords.ToList();
-                db.BirthRecords.RemoveRange(existing);
-                db.SaveChanges();
+                (2015, 651292, 332031, 319261),
+                (2016, 668096, 340598, 327498),
+                (2017, 688481, 350990, 337491),
+                (2018, 705717, 359777, 345940),
+                (2019, 723617, 368903, 354714),
+                (2020, 741705, 378124, 363581),
+                (2021, 761567, 388250, 373317),
+                (2022, 779534, 397409, 382125),
+                (2023, 788763, 402114, 386649),
+                (2024, 804966, 410375, 394591),
+                (2025, 822215, 419168, 403047),
+                (2026, 836420, 426410, 410010),
+                (2027, 847521, 432070, 415451),
+                (2028, 859891, 438376, 421515),
+                (2029, 869665, 443359, 426306),
+                (2030, 878445, 447835, 430610),
+                (2031, 891665, 454574, 437091),
+                (2032, 901357, 459515, 441842),
+                (2033, 915030, 466486, 448544),
+                (2034, 924402, 471264, 453138),
+                (2035, 936181, 477269, 458912)
+            };
 
-                var records = new List<BirthRecord>
+            var recordsToAdd = new List<BirthRecord>();
+            foreach (var item in baseline)
+            {
+                if (!existingYears.Contains(item.Year))
                 {
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2015, TotalBirths = 651292, MaleBirths = 332031, FemaleBirths = 319261, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2016, TotalBirths = 668096, MaleBirths = 340598, FemaleBirths = 327498, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2017, TotalBirths = 688481, MaleBirths = 350990, FemaleBirths = 337491, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2018, TotalBirths = 705717, MaleBirths = 359777, FemaleBirths = 345940, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2019, TotalBirths = 723617, MaleBirths = 368903, FemaleBirths = 354714, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2020, TotalBirths = 741705, MaleBirths = 378124, FemaleBirths = 363581, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2021, TotalBirths = 761567, MaleBirths = 388250, FemaleBirths = 373317, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2022, TotalBirths = 779534, MaleBirths = 397409, FemaleBirths = 382125, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2023, TotalBirths = 788763, MaleBirths = 402114, FemaleBirths = 386649, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow },
-                    new() { CountryId = somaliaCountry.Id, CityId = null, Year = 2024, TotalBirths = 804966, MaleBirths = 410375, FemaleBirths = 394591, RecordType = RecordType.Estimated, DataSource = "Somalia National Demographic Estimates", SourceReference = "Demographic Survey 2015-2024", CreatedAt = DateTime.UtcNow }
-                };
+                    recordsToAdd.Add(new BirthRecord
+                    {
+                        CountryId = somaliaCountry.Id,
+                        CityId = null,
+                        Year = item.Year,
+                        TotalBirths = item.Total,
+                        MaleBirths = item.Male,
+                        FemaleBirths = item.Female,
+                        RecordType = RecordType.Estimated,
+                        DataSource = "Somalia National Demographic Estimates",
+                        SourceReference = "Demographic Survey 2015-2035",
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+            }
 
-                db.BirthRecords.AddRange(records);
+            if (recordsToAdd.Any())
+            {
+                db.BirthRecords.AddRange(recordsToAdd);
                 db.SaveChanges();
             }
         }
