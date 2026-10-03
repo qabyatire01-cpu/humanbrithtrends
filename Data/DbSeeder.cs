@@ -138,6 +138,53 @@ namespace HumanBirthPredictionSystem.Data
                 db.BirthRecords.AddRange(recordsToAdd);
                 db.SaveChanges();
             }
+
+            // Ensure Garowe city records exist
+            var garoweCity = db.Cities.FirstOrDefault(c => c.CityName == "Garowe" && c.CountryId == somaliaCountry.Id);
+            if (garoweCity != null)
+            {
+                bool garoweChanged = false;
+                if (!db.BirthRecords.Any(r => r.CountryId == somaliaCountry.Id && r.CityId == garoweCity.Id && r.Year == 2025 && r.RecordType == RecordType.Estimated))
+                {
+                    db.BirthRecords.Add(new BirthRecord
+                    {
+                        CountryId = somaliaCountry.Id,
+                        CityId = garoweCity.Id,
+                        Year = 2025,
+                        TotalBirths = 22000,
+                        MaleBirths = 10500,
+                        FemaleBirths = 11500,
+                        RecordType = RecordType.Estimated,
+                        DataSource = "puntland resource",
+                        SourceReference = "puntland resource",
+                        CreatedAt = DateTime.UtcNow
+                    });
+                    garoweChanged = true;
+                }
+
+                if (!db.BirthRecords.Any(r => r.CountryId == somaliaCountry.Id && r.CityId == garoweCity.Id && r.Year == 2026 && r.RecordType == RecordType.Official))
+                {
+                    db.BirthRecords.Add(new BirthRecord
+                    {
+                        CountryId = somaliaCountry.Id,
+                        CityId = garoweCity.Id,
+                        Year = 2026,
+                        TotalBirths = 25000,
+                        MaleBirths = 12400,
+                        FemaleBirths = 12600,
+                        RecordType = RecordType.Official,
+                        DataSource = "garowe resource",
+                        SourceReference = "garowe resource",
+                        CreatedAt = DateTime.UtcNow
+                    });
+                    garoweChanged = true;
+                }
+
+                if (garoweChanged)
+                {
+                    db.SaveChanges();
+                }
+            }
         }
     }
 }
